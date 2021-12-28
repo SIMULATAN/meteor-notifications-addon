@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "id": "addon-template",
+  "id": "notifications-addon",
   "version": "${version}",
-  "name": "Addon Template",
-  "description": "An addon template for the Meteor Addon API.",
+  "name": "Notifications Addon",
+  "description": "An addon for the meteor client that displays various notifications on the HUD.",
   "authors": [
-    "seasnail8169"
+    "SIMULATAN"
   ],
   "contact": {
-    "repo": "https://github.com/MeteorDevelopment/meteor-addon-template"
+    "repo": "https://github.com/SIMULATAN/meteor-notifications-addon"
   },
-  "icon": "assets/template/icon.png",
+  "icon": "assets/notifications/icon.png",
   "environment": "client",
   "entrypoints": {
     "meteor": [
-      "meteordevelopment.addons.template.TemplateAddon"
+      "com.github.simulatan.meteornotificationsaddon.NotificationsAddon"
     ]
   },
   "mixins": [
-    "template.mixins.json"
+    "notifications.mixins.json"
   ],
   "custom": {
     "meteor-client:color": "225,25,25"
   },
   "depends": {
-    "java": ">=16",
+    "java": ">=17",
     "minecraft": ">=@mc_version@",
     "meteor-client": "*"
   }
