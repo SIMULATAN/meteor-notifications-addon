@@ -14,6 +14,7 @@ import meteordevelopment.meteorclient.systems.modules.render.hud.HudRenderer;
 import meteordevelopment.meteorclient.systems.modules.render.hud.modules.HudElement;
 import meteordevelopment.meteorclient.utils.render.AlignmentX;
 import meteordevelopment.meteorclient.utils.render.color.Color;
+import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.client.MinecraftClient;
 
 import javax.annotation.Nullable;
@@ -184,6 +185,23 @@ public class NotificationsHudElement extends HudElement {
         .build()
     );
 
+    private final Setting<SettingColor> backgroundColor = sgGeneral.add(new ColorSetting.Builder()
+        .name("background-color")
+        .description("The background color of the notifications.")
+        .defaultValue(new SettingColor(32, 32, 32, 102))
+        .build()
+    );
+
+    private final Setting<Double> radius = sgGeneral.add(new DoubleSetting.Builder()
+        .name("radius")
+        .description("How round the rectangles of the notifications are.")
+        .defaultValue(10)
+        .min(0)
+        .max(10)
+        .sliderRange(0, 10)
+        .build()
+    );
+
     @Override
     public void update(HudRenderer renderer) {
         box.setSize(
@@ -207,6 +225,7 @@ public class NotificationsHudElement extends HudElement {
         Integer progressBarHeight = this.progressBarHeight.get();
         Integer timeToDisplay = this.timeToDisplay.get();
         VerticalAlign verticalAlign = this.verticalAlign.get();
+        Double radius = this.radius.get();
 
         renderer.addPostTask(() -> {
             if (mode.get() == Mode.SIMULATAN) {
@@ -219,17 +238,23 @@ public class NotificationsHudElement extends HudElement {
 
                     final double y = baseY + (notificationHeight + progressBarHeight + notificationPaddingY) * (verticalAlign == VerticalAlign.TOP ? i : maxCount.get() - i - 1);
 
-                    Renderer2D.COLOR.begin();
+                    DrawUtils.renderer.begin();
 
                     // Background
-                    Renderer2D.COLOR.quad(baseX, y, box.width, notificationHeight + progressBarHeight, new Color(0x20202066));
+                    if (radius > 0)
+                        DrawUtils.drawRoundedQuad(baseX, y, box.width, notificationHeight + progressBarHeight, radius, new Color(backgroundColor.get()));
+                    else
+                        DrawUtils.drawQuad(baseX, y, box.width, notificationHeight + progressBarHeight, new Color(backgroundColor.get()));
 
                     // Progress bar
                     final long time = System.currentTimeMillis() - startTime;
                     double progress = (timeToDisplay - time) * box.width / timeToDisplay;
-                    Renderer2D.COLOR.quad(baseX, y + notificationHeight, progress, progressBarHeight, new Color(notification.getColor()));
+                    if (radius > 0)
+                        DrawUtils.drawRoundedQuad(baseX, y + notificationHeight, progress, progressBarHeight, radius, new Color(notification.getColor()), false);
+                    else
+                        DrawUtils.drawQuad(baseX, y + notificationHeight, progress, progressBarHeight, new Color(notification.getColor()));
 
-                    Renderer2D.COLOR.render(null);
+                    DrawUtils.renderer.render(null);
 
                     final @Nullable String description = notification.getDescription();
 

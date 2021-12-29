@@ -1,6 +1,9 @@
 package com.github.simulatan.meteornotificationsaddon.utils;
 
+import meteordevelopment.meteorclient.renderer.Renderer2D;
 import meteordevelopment.meteorclient.renderer.text.TextRenderer;
+import meteordevelopment.meteorclient.utils.Init;
+import meteordevelopment.meteorclient.utils.InitStage;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
 import java.util.regex.Pattern;
@@ -75,6 +78,24 @@ public class DrawUtils {
             }
         }
         return width;
+    }
+
+    public static Renderer2DQuad renderer;
+
+    public static void init() {
+        renderer = new Renderer2DQuad(false);
+    }
+
+    public static void drawRoundedQuad(double x, double y, double width, double height, double radius, Color color) {
+        renderer.quadRounded(x, y, width, height, color, radius, true);
+    }
+
+    public static void drawRoundedQuad(double x, double y, double width, double height, double radius, Color color, boolean roundTop) {
+        renderer.quadRounded(x, y, width, height, color, radius, roundTop);
+    }
+
+    public static void drawQuad(double x, double y, double width, double height, Color color) {
+        renderer.quad(x, y, width, height, color);
     }
 
     public static double render(String text, double x, double y, java.awt.Color color) { return render(text, x, y, color, false); }
