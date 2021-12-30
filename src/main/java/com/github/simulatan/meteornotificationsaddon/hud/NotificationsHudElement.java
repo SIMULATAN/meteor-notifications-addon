@@ -16,6 +16,7 @@ import meteordevelopment.meteorclient.utils.render.AlignmentX;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.ai.goal.DoorInteractGoal;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -41,9 +42,28 @@ public class NotificationsHudElement extends HudElement {
     public final Setting<Integer> timeToDisplay = sgGeneral.add(new IntSetting.Builder()
         .name("time-to-display")
         .description("The time to display the notifications (in milliseconds).")
+        .onChanged(c -> {
+            c /= 2;
+            if (this.animationDuration.get() > c) {
+                this.animationDuration.set(c);
+            }
+            try {
+                Field max = IntSetting.class.getDeclaredField("max");
+                max.setAccessible(true);
+                max.set(this.animationDuration, c);
+                Field sliderMax = IntSetting.class.getDeclaredField("sliderMax");
+                sliderMax.setAccessible(true);
+                sliderMax.set(this.animationDuration, c);
+                if (MinecraftClient.getInstance().currentScreen instanceof HudElementScreen e) {
+                    e.reload();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        })
         .defaultValue(3000)
-        .min(100)
-        .sliderRange(100, 5000)
+        .min(500)
+        .sliderRange(500, 5000)
         .build()
     );
 
@@ -202,6 +222,16 @@ public class NotificationsHudElement extends HudElement {
         .build()
     );
 
+    private final Setting<Integer> animationDuration = sgGeneral.add(new IntSetting.Builder()
+        .name("animation-duration")
+        .description("The duration of the animation in milliseconds.")
+        .defaultValue(250)
+        .min(0)
+        .max(timeToDisplay.get() / 2)
+        .sliderRange(0, timeToDisplay.get() / 2)
+        .build()
+    );
+
     @Override
     public void update(HudRenderer renderer) {
         box.setSize(
@@ -226,6 +256,8 @@ public class NotificationsHudElement extends HudElement {
         Integer timeToDisplay = this.timeToDisplay.get();
         VerticalAlign verticalAlign = this.verticalAlign.get();
         Double radius = this.radius.get();
+        // float to allow for floating point math
+        Float animationDuration = (float) this.animationDuration.get();
 
         renderer.addPostTask(() -> {
             if (mode.get() == Mode.SIMULATAN) {
@@ -235,24 +267,29 @@ public class NotificationsHudElement extends HudElement {
                 for (int i = 0; i < notifications.size(); i++) {
                     final Notification notification = notifications.get(i);
                     final long startTime = notification.getStartTime() != 0 ? notification.getStartTime() : System.currentTimeMillis() - ((long) (notifications.size() - i - 1)) * timeToDisplay / dummyNotificationsDisplayCount.get();
+                    final long notificationTime = System.currentTimeMillis() - notification.getStartTime();
 
+                    final double x = baseX + (notification.getStartTime() == 0 ? 0 : notificationTime <= animationDuration ?
+                        (animationDuration - notificationTime) * box.width / animationDuration
+                        : notificationTime >= timeToDisplay - animationDuration ?
+                        box.width - ((timeToDisplay - notificationTime) * box.width / animationDuration)
+                        : 0);
                     final double y = baseY + (notificationHeight + progressBarHeight + notificationPaddingY) * (verticalAlign == VerticalAlign.TOP ? i : maxCount.get() - i - 1);
 
                     DrawUtils.renderer.begin();
 
                     // Background
                     if (radius > 0)
-                        DrawUtils.drawRoundedQuad(baseX, y, box.width, notificationHeight + progressBarHeight, radius, new Color(backgroundColor.get()));
+                        DrawUtils.drawRoundedQuad(x, y, box.width, notificationHeight + progressBarHeight, radius, new Color(backgroundColor.get()));
                     else
-                        DrawUtils.drawQuad(baseX, y, box.width, notificationHeight + progressBarHeight, new Color(backgroundColor.get()));
+                        DrawUtils.drawQuad(x, y, box.width, notificationHeight + progressBarHeight, new Color(backgroundColor.get()));
 
                     // Progress bar
-                    final long time = System.currentTimeMillis() - startTime;
-                    double progress = (timeToDisplay - time) * box.width / timeToDisplay;
+                    double progress = (startTime + timeToDisplay - System.currentTimeMillis()) * box.width / timeToDisplay;
                     if (radius > 0)
-                        DrawUtils.drawRoundedQuad(baseX, y + notificationHeight, progress, progressBarHeight, radius, new Color(notification.getColor()), false);
+                        DrawUtils.drawRoundedQuad(x, y + notificationHeight, progress, progressBarHeight, radius, new Color(notification.getColor()), false);
                     else
-                        DrawUtils.drawQuad(baseX, y + notificationHeight, progress, progressBarHeight, new Color(notification.getColor()));
+                        DrawUtils.drawQuad(x, y + notificationHeight, progress, progressBarHeight, new Color(notification.getColor()));
 
                     DrawUtils.renderer.render(null);
 
@@ -260,6 +297,7 @@ public class NotificationsHudElement extends HudElement {
 
                     final double titleHeight = description != null && !description.isEmpty() ? notificationHeight * 0.7D : notificationHeight;
 
+                    // Title scale
                     double scale = Math.min(
                         box.width *
                             (1F - titlePaddingX / 100F)
@@ -267,24 +305,29 @@ public class NotificationsHudElement extends HudElement {
                         titleHeight / TextRenderer.get().getHeight()
                     );
                     TextRenderer.get().begin(scale, false, true);
+
+                    // Title
                     float titleX = titleAlignment == AlignmentX.Center ?
-                        (float) (box.getX() + box.width / 2 - DrawUtils.getWidth(notification.getTitle()) / 2) : titleAlignment == AlignmentX.Left ?
-                        (float) (box.getX() + titlePaddingX) :
-                        (float) (box.getX() + box.width - titlePaddingX - DrawUtils.getWidth(notification.getTitle()));
+                        (float) (x + box.width / 2 - DrawUtils.getWidth(notification.getTitle()) / 2) : titleAlignment == AlignmentX.Left ?
+                        (float) (x + titlePaddingX) :
+                        (float) (x + box.width - titlePaddingX - DrawUtils.getWidth(notification.getTitle()));
                     DrawUtils.render(notification.getTitle(), titleX, y + (titleHeight - TextRenderer.get().getHeight()) / 2, java.awt.Color.WHITE, false);
                     TextRenderer.get().end();
 
                     if (description != null && !description.isEmpty()) {
+                        // Description scale
                         scale = Math.min(
                             box.width * (1F - descriptionPaddingX / 100F)
                             / DrawUtils.getWidth(description),
                             notificationHeight * 0.25 / TextRenderer.get().getHeight()
                         );
                         TextRenderer.get().begin(scale, false, true);
+
+                        // Description
                         float descriptionX = descriptionAlignment == AlignmentX.Center ?
-                                (float) (box.getX() + box.width / 2 - DrawUtils.getWidth(description) / 2) : descriptionAlignment == AlignmentX.Left ?
-                                (float) (box.getX() + descriptionPaddingX) :
-                                (float) (box.getX() + box.width - descriptionPaddingX - DrawUtils.getWidth(description));
+                                (float) (x + box.width / 2 - DrawUtils.getWidth(description) / 2) : descriptionAlignment == AlignmentX.Left ?
+                                (float) (x + descriptionPaddingX) :
+                                (float) (x + box.width - descriptionPaddingX - DrawUtils.getWidth(description));
                         DrawUtils.render(description, descriptionX, y + titleHeight + (progressBarHeight - TextRenderer.get().getHeight()) / 2, java.awt.Color.WHITE, false);
                         TextRenderer.get().end();
                     }
