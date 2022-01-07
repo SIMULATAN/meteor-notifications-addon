@@ -4,9 +4,10 @@ import com.github.simulatan.meteornotificationsaddon.commands.NotificationsComma
 import com.github.simulatan.meteornotificationsaddon.hud.NotificationsHudElement;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
+import meteordevelopment.meteorclient.systems.Systems;
 import meteordevelopment.meteorclient.systems.commands.Commands;
+import meteordevelopment.meteorclient.systems.hud.HUD;
 import meteordevelopment.meteorclient.systems.modules.Modules;
-import meteordevelopment.meteorclient.systems.modules.render.hud.HUD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,7 +27,7 @@ public class NotificationsAddon extends MeteorAddon {
         Commands.get().add(new NotificationsCommand());
 
 		// HUD
-		HUD hud = Modules.get().get(HUD.class);
+		HUD hud = Systems.get(HUD.class);
 		hud.elements.add(new NotificationsHudElement(hud));
 	}
 }
