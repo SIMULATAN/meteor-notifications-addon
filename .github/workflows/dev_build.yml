@@ -22,6 +22,6 @@ jobs:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: ${{ steps.get_version.outputs.VERSION }}
           prerelease: true
-          title: Dev Build
+          title: Dev Build v${{ steps.get_version.outputs.VERSION }}
           files: |
             ./build/libs/*.jar
