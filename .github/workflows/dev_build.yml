@@ -10,13 +10,17 @@ jobs:
         with:
           java-version: 17
           distribution: adopt
+      - name: Get Version
+        id: get_version
+        # display all properties | get line with version in it | split by space (input is for example "mod_version: 1.8.7")
+        run: echo ::set-output name=VERSION::$(./gradlew properties | grep mod_version | cut -f 2 -d " ")
       - name: Build
         run: ./gradlew build
       - name: Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          automatic_release_tag: latest
+          automatic_release_tag: ${{ steps.get_version.outputs.VERSION }}
           prerelease: true
           title: Dev Build
           files: |
