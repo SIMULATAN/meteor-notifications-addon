@@ -44,3 +44,16 @@ tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
     it.options.release = 17
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+		    from components.java
+        }
+    }
+}
+
+// prevent caching the meteor-client for too long
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
