@@ -9,7 +9,6 @@
   },
   "mixins": [
     "MeshMixin",
-    "ModuleMixin",
     "ModulesMixin",
     "Renderer2DMixin"
   ]
