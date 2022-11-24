@@ -236,8 +236,6 @@ public class NotificationsHudElement extends HudElement {
 			width.get(),
 			(notificationHeight.get() + progressBarHeight.get()) * maxCount.get() + notificationPaddingY.get() * (maxCount.get() - 1)
 		);
-		System.out.println(box.x);
-		if (true) return;
 
 		List<Notification> notifications = NotificationsManager.getNotifications(isInEditor());
 		if (notifications == null || notifications.isEmpty()) return;
@@ -258,8 +256,8 @@ public class NotificationsHudElement extends HudElement {
 
 		renderer.post(() -> {
 			if (mode.get() == Mode.SIMULATAN) {
-				double baseX = box.x;
-				double baseY = box.y;
+				double baseX = box.getRenderX();
+				double baseY = box.getRenderY();
 
 				for (int i = 0; i < notifications.size(); i++) {
 					final Notification notification = notifications.get(i);
@@ -276,8 +274,6 @@ public class NotificationsHudElement extends HudElement {
 									: 0
 					);
 					final double y = baseY + (notificationHeight + progressBarHeight + notificationPaddingY) * (verticalAlign == VerticalAlign.TOP ? i : maxCount.get() - i - 1);
-
-					System.out.println("baseX: " + baseX + " x: " + x + " y: " + y);
 
 					DrawUtils.renderer.begin();
 
