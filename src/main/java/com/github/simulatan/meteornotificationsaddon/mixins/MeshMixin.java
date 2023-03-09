@@ -7,12 +7,12 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(Mesh.class)
 public interface MeshMixin extends MeshAccessor {
-    @Accessor
-    int getIndicesCount();
+	@Accessor(remap = false)
+	int getIndicesCount();
 
-    @Accessor
-    long getIndicesPointer();
+	@Accessor(remap = false)
+	long getIndicesPointer();
 
-    @Accessor
-    void setIndicesCount(int count);
+	@Accessor(remap = false)
+	void setIndicesCount(int count);
 }
