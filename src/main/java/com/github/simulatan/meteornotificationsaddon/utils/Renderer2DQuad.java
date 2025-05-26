@@ -1,7 +1,7 @@
 package com.github.simulatan.meteornotificationsaddon.utils;
 
 import com.github.simulatan.meteornotificationsaddon.mixins.MeshMixin;
-import meteordevelopment.meteorclient.renderer.Mesh;
+import meteordevelopment.meteorclient.renderer.MeshBuilder;
 import meteordevelopment.meteorclient.renderer.Renderer2D;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 
@@ -109,15 +109,15 @@ public class Renderer2DQuad extends Renderer2D {
 		}
 	}
 
-	public static void triangle(int i1, int i2, int i3, Mesh entity) {
+	public static void triangle(int i1, int i2, int i3, MeshBuilder entity) {
 		MeshMixin accessor = (MeshMixin) entity;
-		long p = accessor.getIndicesPointer() + accessor.getIndicesCount() * 4L;
+		long p = accessor.getIndicesPointer() + entity.getIndicesCount() * 4L;
 
 		memPutInt(p, i1);
 		memPutInt(p + 4, i2);
 		memPutInt(p + 8, i3);
 
-		accessor.setIndicesCount(accessor.getIndicesCount() + 3);
+		accessor.setIndicesCount(entity.getIndicesCount() + 3);
 		accessor.growIfNeeded();
 	}
 

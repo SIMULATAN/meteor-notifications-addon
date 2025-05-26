@@ -19,6 +19,7 @@ import net.minecraft.client.MinecraftClient;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.util.LinkedList;
 import java.util.List;
 
 public class NotificationsHudElement extends HudElement {
@@ -185,7 +186,7 @@ public class NotificationsHudElement extends HudElement {
 	public final Setting<List<Module>> modules = sgGeneral.add(new ModuleListSetting.Builder()
 		.name("Modules to display")
 		.description("The modules to display in the notifications.")
-		.defaultValue(Modules.get().getList())
+		.defaultValue(new LinkedList<>(Modules.get().getAll()))
 		.build()
 	);
 
@@ -290,7 +291,7 @@ public class NotificationsHudElement extends HudElement {
 					else
 						DrawUtils.drawQuad(x, y + notificationHeight, progress, progressBarHeight, new Color(notification.getColor()));
 
-					DrawUtils.renderer.render(null);
+					DrawUtils.renderer.render();
 
 					final @Nullable String description = notification.getDescription();
 
