@@ -1,0 +1,10 @@
+{
+    "feature_directories": {
+        "commands": [
+            "commands"
+        ],
+        "hud_elements": [
+            "hud"
+        ]
+    }
+}
