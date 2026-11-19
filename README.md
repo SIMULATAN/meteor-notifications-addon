@@ -15,7 +15,7 @@ If you need any help, feel free to [DM me on Discord](https://discord.com/users/
 ### How to develop
 - Clone this repository
 - Import the project in IntelliJ
-- Configure IntelliJ to use JDK 17
+- Configure IntelliJ to use JDK 27
 - Change the `Gradle JVM` option to `Project SDK` (`Build, Execution, Deployment -> Build Tools -> Gradle`)
 - Restart IntelliJ after the initial build to load the run configurations
 

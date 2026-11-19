@@ -61,7 +61,7 @@ public class NotificationsHudElement extends HudElement {
 				Field sliderMax = IntSetting.class.getDeclaredField("sliderMax");
 				sliderMax.setAccessible(true);
 				sliderMax.set(this.animationDuration, c);
-				if (Minecraft.getInstance().screen instanceof HudElementScreen e) {
+				if (Minecraft.getInstance().gui.screen() instanceof HudElementScreen e) {
 					e.reload();
 				}
 			} catch (Exception e) {
@@ -91,7 +91,7 @@ public class NotificationsHudElement extends HudElement {
 				Field sliderMax = IntSetting.class.getDeclaredField("sliderMax");
 				sliderMax.setAccessible(true);
 				sliderMax.set(this.dummyNotificationsDisplayCount, c);
-				if (Minecraft.getInstance().screen instanceof HudElementScreen e) {
+				if (Minecraft.getInstance().gui.screen() instanceof HudElementScreen e) {
 					e.reload();
 				}
 			} catch (Exception e) {
@@ -305,7 +305,7 @@ public class NotificationsHudElement extends HudElement {
 							/ DrawUtils.getWidth(notification.getTitle()),
 						titleHeight / TextRenderer.get().getHeight()
 					);
-					TextRenderer.get().begin(scale, false, true);
+					TextRenderer.get().begin(renderer.graphics,scale, false, true);
 
 					// Title
 					float titleX = titleAlignment == AlignmentX.Center ?
@@ -322,7 +322,7 @@ public class NotificationsHudElement extends HudElement {
 								/ DrawUtils.getWidth(description),
 							notificationHeight * 0.25 / TextRenderer.get().getHeight()
 						);
-						TextRenderer.get().begin(scale, false, true);
+						TextRenderer.get().begin(renderer.graphics,scale, false, true);
 
 						// Description
 						float descriptionX = descriptionAlignment == AlignmentX.Center ?
